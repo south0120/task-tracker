@@ -7,6 +7,8 @@ interface ActiveSessionProps {
   session: WorkSession
   task: Task | undefined
   onStop: (memo: string, nextAction: string) => void
+  compact?: boolean
+  onToggleCompact?: () => void
 }
 
 function formatElapsed(startedAt: string) {
@@ -17,7 +19,7 @@ function formatElapsed(startedAt: string) {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
-export default function ActiveSession({ session, task, onStop }: ActiveSessionProps) {
+export default function ActiveSession({ session, task, onStop, compact, onToggleCompact }: ActiveSessionProps) {
   const [elapsed, setElapsed] = useState(() => formatElapsed(session.startedAt))
   const [showForm, setShowForm] = useState(false)
   const [memo, setMemo] = useState('')
@@ -46,6 +48,71 @@ export default function ActiveSession({ session, task, onStop }: ActiveSessionPr
     setShowForm(false)
   }
 
+  if (compact) {
+    return (
+      <div className="flex h-screen w-full flex-col items-center justify-center gap-5 bg-zinc-950 select-none"
+        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+      >
+        <p className="max-w-[90%] truncate text-sm font-medium text-zinc-400">
+          {task?.title ?? '不明なタスク'}
+        </p>
+        <p className="font-mono text-5xl font-bold tabular-nums text-blue-400">
+          {elapsed}
+        </p>
+        <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+          {!showForm ? (
+            <>
+              <button
+                onClick={handleStop}
+                className="rounded-lg bg-red-500 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600"
+              >
+                終了
+              </button>
+              <button
+                onClick={onToggleCompact}
+                className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-400 transition-colors hover:bg-zinc-800"
+              >
+                展開
+              </button>
+            </>
+          ) : (
+            <div className="flex w-72 flex-col gap-3">
+              <textarea
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+                placeholder="やったこと・進捗メモ"
+                rows={2}
+                autoFocus
+                className="w-full resize-none rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-blue-500"
+              />
+              <textarea
+                value={nextAction}
+                onChange={(e) => setNextAction(e.target.value)}
+                placeholder="次にやること"
+                rows={2}
+                className="w-full resize-none rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-blue-500"
+              />
+              <div className="flex justify-center gap-2">
+                <button
+                  onClick={handleSkip}
+                  className="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-800"
+                >
+                  スキップ
+                </button>
+                <button
+                  onClick={handleStop}
+                  className="rounded-md bg-red-500 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-600"
+                >
+                  保存して終了
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="rounded-lg border-2 border-blue-500 bg-blue-50 px-5 py-4 dark:border-blue-400 dark:bg-blue-950/30">
       <div className="flex items-center justify-between">
@@ -66,12 +133,23 @@ export default function ActiveSession({ session, task, onStop }: ActiveSessionPr
             {elapsed}
           </span>
           {!showForm && (
-            <button
-              onClick={handleStop}
-              className="rounded-md bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600"
-            >
-              終了
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onToggleCompact}
+                className="rounded-md border border-zinc-200 px-3 py-1.5 text-xs text-zinc-500 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                title="最小表示"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4M12 4v16" transform="rotate(45 12 12)" />
+                </svg>
+              </button>
+              <button
+                onClick={handleStop}
+                className="rounded-md bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600"
+              >
+                終了
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -113,7 +191,7 @@ export default function ActiveSession({ session, task, onStop }: ActiveSessionPr
               onClick={handleStop}
               className="rounded-md bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600"
             >
-              メモを保存して終了
+              メモを保存��て終了
             </button>
           </div>
         </div>

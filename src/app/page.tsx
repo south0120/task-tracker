@@ -29,6 +29,7 @@ function HomeContent() {
   const [filter, setFilter] = useState<FilterType>('all')
   const [sort, setSort] = useState<SortType>('created')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [compactMode, setCompactMode] = useState(false)
 
   const fetchTasks = useCallback(async () => {
     const [tasksRes, sessionRes, nextActionsRes] = await Promise.all([
@@ -174,6 +175,7 @@ function HomeContent() {
     }
 
     setActiveSession(null)
+    setCompactMode(false)
   }
 
   const allTags = useMemo(() => {
@@ -207,6 +209,18 @@ function HomeContent() {
     )
   }
 
+  if (compactMode && activeSession) {
+    return (
+      <ActiveSession
+        session={activeSession}
+        task={tasks.find((t) => t.id === activeSession.taskId)}
+        onStop={stopWork}
+        compact
+        onToggleCompact={() => setCompactMode(false)}
+      />
+    )
+  }
+
   return (
     <>
       <Header />
@@ -217,6 +231,7 @@ function HomeContent() {
               session={activeSession}
               task={tasks.find((t) => t.id === activeSession.taskId)}
               onStop={stopWork}
+              onToggleCompact={() => setCompactMode(true)}
             />
           )}
           <TaskForm onAdd={addTask} allTags={allTags} />
