@@ -4,12 +4,22 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import type { Task, WorkSession } from '../types/task'
 import { useT } from '../lib/i18n'
 
+export interface PomodoroState {
+  enabled: boolean
+  secondsLeft: number
+  isBreak: boolean
+  term: number
+  message: string
+}
+
 interface ActiveSessionProps {
   session: WorkSession
   task: Task | undefined
   onStop: (memo: string, nextAction: string) => void
   compact?: boolean
   onToggleCompact?: () => void
+  pomodoro: PomodoroState
+  onPomodoroChange: (state: PomodoroState) => void
 }
 
 function formatElapsed(startedAt: string) {
@@ -33,21 +43,20 @@ const COMPACT_HEIGHT_POM = 140
 const WORK_DURATION = 25 * 60
 const BREAK_DURATION = 5 * 60
 
-export default function ActiveSession({ session, task, onStop, compact, onToggleCompact }: ActiveSessionProps) {
+export default function ActiveSession({ session, task, onStop, compact, onToggleCompact, pomodoro, onPomodoroChange }: ActiveSessionProps) {
   const t = useT()
   const [elapsed, setElapsed] = useState(() => formatElapsed(session.startedAt))
   const [showForm, setShowForm] = useState(false)
   const [memo, setMemo] = useState('')
   const [nextAction, setNextAction] = useState('')
   const prevSize = useRef<{ w: number; h: number; x: number; y: number } | null>(null)
-
-  // Pomodoro state
-  const [pomEnabled, setPomEnabled] = useState(false)
-  const [pomSecondsLeft, setPomSecondsLeft] = useState(WORK_DURATION)
-  const [pomIsBreak, setPomIsBreak] = useState(false)
-  const [pomTerm, setPomTerm] = useState(1)
-  const [pomMessage, setPomMessage] = useState('')
   const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const pomEnabled = pomodoro.enabled
+  const pomSecondsLeft = pomodoro.secondsLeft
+  const pomIsBreak = pomodoro.isBreak
+  const pomTerm = pomodoro.term
+  const pomMessage = pomodoro.message
 
   const playAlarm = useCallback(() => {
     if (!audioRef.current) {
@@ -68,45 +77,34 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
   useEffect(() => {
     if (!pomEnabled) return
     const interval = setInterval(() => {
-      setPomSecondsLeft((prev) => {
-        if (prev <= 1) {
-          // Transition
-          if (pomIsBreak) {
-            setPomIsBreak(false)
-            setPomTerm((t) => t + 1)
-            setPomMessage('')
-            playAlarm()
-            return WORK_DURATION
-          } else {
-            setPomIsBreak(true)
-            setPomMessage(t.pomBreakTime)
-            playAlarm()
-            return BREAK_DURATION
-          }
+      const prev = pomodoro.secondsLeft
+      if (prev <= 1) {
+        if (pomodoro.isBreak) {
+          onPomodoroChange({ ...pomodoro, isBreak: false, term: pomodoro.term + 1, message: t.pomWorkTime, secondsLeft: WORK_DURATION })
+          playAlarm()
+        } else {
+          onPomodoroChange({ ...pomodoro, isBreak: true, message: t.pomBreakTime, secondsLeft: BREAK_DURATION })
+          playAlarm()
         }
-        return prev - 1
-      })
+      } else {
+        onPomodoroChange({ ...pomodoro, secondsLeft: prev - 1 })
+      }
     }, 1000)
     return () => clearInterval(interval)
-  }, [pomEnabled, pomIsBreak, playAlarm, t.pomBreakTime])
+  }, [pomEnabled, pomodoro, onPomodoroChange, playAlarm, t.pomBreakTime, t.pomWorkTime])
 
   // Clear message after 5 seconds
   useEffect(() => {
     if (!pomMessage) return
-    const timer = setTimeout(() => setPomMessage(''), 5000)
+    const timer = setTimeout(() => onPomodoroChange({ ...pomodoro, message: '' }), 5000)
     return () => clearTimeout(timer)
   }, [pomMessage])
 
   const togglePomodoro = () => {
     if (!pomEnabled) {
-      setPomEnabled(true)
-      setPomSecondsLeft(WORK_DURATION)
-      setPomIsBreak(false)
-      setPomTerm(1)
-      setPomMessage('')
+      onPomodoroChange({ enabled: true, secondsLeft: WORK_DURATION, isBreak: false, term: 1, message: '' })
     } else {
-      setPomEnabled(false)
-      setPomMessage('')
+      onPomodoroChange({ enabled: false, secondsLeft: WORK_DURATION, isBreak: false, term: 1, message: '' })
     }
   }
 

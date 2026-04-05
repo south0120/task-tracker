@@ -5,7 +5,7 @@ import Header from './components/Header'
 import TaskForm from './components/TaskForm'
 import TaskList from './components/TaskList'
 import FilterBar, { type FilterType, type SortType } from './components/FilterBar'
-import ActiveSession from './components/ActiveSession'
+import ActiveSession, { type PomodoroState } from './components/ActiveSession'
 import AuthGuard from './components/AuthGuard'
 import { supabase } from './lib/supabase'
 import { useAuth } from './lib/AuthContext'
@@ -30,6 +30,9 @@ function HomeContent() {
   const [sort, setSort] = useState<SortType>('created')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [compactMode, setCompactMode] = useState(false)
+  const [pomodoro, setPomodoro] = useState<PomodoroState>({
+    enabled: false, secondsLeft: 25 * 60, isBreak: false, term: 1, message: '',
+  })
 
   const fetchTasks = useCallback(async () => {
     const [tasksRes, sessionRes, nextActionsRes] = await Promise.all([
@@ -179,6 +182,7 @@ function HomeContent() {
 
     setActiveSession(null)
     setCompactMode(false)
+    setPomodoro({ enabled: false, secondsLeft: 25 * 60, isBreak: false, term: 1, message: '' })
   }
 
   const allTags = useMemo(() => {
@@ -220,6 +224,8 @@ function HomeContent() {
         onStop={stopWork}
         compact
         onToggleCompact={() => setCompactMode(false)}
+        pomodoro={pomodoro}
+        onPomodoroChange={setPomodoro}
       />
     )
   }
@@ -235,6 +241,8 @@ function HomeContent() {
               task={tasks.find((t) => t.id === activeSession.taskId)}
               onStop={stopWork}
               onToggleCompact={() => setCompactMode(true)}
+              pomodoro={pomodoro}
+              onPomodoroChange={setPomodoro}
             />
           )}
           <TaskForm onAdd={addTask} allTags={allTags} />
