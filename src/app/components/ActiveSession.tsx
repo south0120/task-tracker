@@ -304,7 +304,7 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
             {/* Pomodoro toggle */}
             <button
               onClick={togglePomodoro}
-              className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
                 pomEnabled
                   ? 'border-orange-300 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:border-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
                   : 'border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800'
