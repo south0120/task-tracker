@@ -20,7 +20,7 @@ function formatElapsed(startedAt: string) {
 }
 
 const COMPACT_WIDTH = 340
-const COMPACT_HEIGHT = 100
+const COMPACT_HEIGHT = 110
 
 export default function ActiveSession({ session, task, onStop, compact, onToggleCompact }: ActiveSessionProps) {
   const [elapsed, setElapsed] = useState(() => formatElapsed(session.startedAt))
@@ -93,9 +93,9 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
 
   if (compact) {
     return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center gap-1.5 bg-zinc-950 px-4 py-3 select-none">
+      <div className="flex min-h-screen w-full flex-col items-center justify-center gap-1.5 bg-zinc-950 px-4 pb-5 pt-3 select-none">
         <p className="max-w-full truncate text-[11px] font-medium text-zinc-400">
-          {task?.title ?? '不明なタスク'}
+          {task?.title ?? ''}
         </p>
         <div className="flex items-center gap-3">
           <p className="font-mono text-2xl font-bold tabular-nums text-blue-400">
@@ -169,7 +169,7 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
           <div>
             <p className="text-xs font-medium text-blue-600 dark:text-blue-400">作業中</p>
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-              {task?.title ?? '不明なタスク'}
+              {task?.title ?? ''}
             </p>
           </div>
         </div>
@@ -184,7 +184,6 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
                 className="rounded-md border border-zinc-200 p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
                 title="最小表示"
               >
-                {/* 縮小��イコン（PiP風） */}
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <rect x="2" y="2" width="20" height="20" rx="2" strokeOpacity="0.3" />
                   <rect x="11" y="11" width="11" height="11" rx="1.5" fill="currentColor" opacity="0.6" stroke="currentColor" />
