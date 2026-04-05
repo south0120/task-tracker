@@ -109,6 +109,9 @@ export default function Header() {
           <Link href="/settings" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
             {t.settings}
           </Link>
+          <Link href="/trash" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+            🗑 {t.tags === '\u30bf\u30b0\u96c6\u8a08' ? '\u30b4\u30df\u7bb1' : 'Trash'}
+          </Link>
           {user && (
             <button
               onClick={() => { signOut(); setMenuOpen(false) }}

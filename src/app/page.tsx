@@ -33,7 +33,7 @@ function HomeContent() {
 
   const fetchTasks = useCallback(async () => {
     const [tasksRes, sessionRes, nextActionsRes] = await Promise.all([
-      supabase.from('tasks').select('*').order('created_at', { ascending: false }),
+      supabase.from('tasks').select('*').is('deleted_at', null).order('created_at', { ascending: false }),
       supabase.from('work_sessions').select('*').is('ended_at', null).limit(1).maybeSingle(),
       supabase.from('work_sessions').select('task_id, next_action, started_at').not('next_action', 'eq', '').order('started_at', { ascending: false }),
     ])
@@ -116,7 +116,10 @@ function HomeContent() {
   }
 
   const deleteTask = async (id: string) => {
-    await supabase.from('tasks').delete().eq('id', id)
+    await supabase
+      .from('tasks')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', id)
     setTasks((prev) => prev.filter((t) => t.id !== id))
   }
 
