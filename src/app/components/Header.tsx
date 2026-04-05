@@ -78,8 +78,8 @@ export default function Header() {
 
       {/* Mobile sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out sm:hidden dark:bg-zinc-950 ${
-          menuOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 right-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out sm:hidden dark:bg-zinc-950 ${
+          menuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-800">
