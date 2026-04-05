@@ -189,12 +189,31 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
             {pomMessage}
           </p>
         )}
-        {/* Elapsed time row */}
+        {/* Elapsed time row + buttons */}
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-zinc-500">{t.total}</span>
           <p className="font-mono text-2xl font-bold tabular-nums text-blue-400">
             {elapsed}
           </p>
+          {!showForm && (
+            <div className="ml-auto flex items-center gap-1.5">
+              <button
+                onClick={handleStop}
+                className="rounded-md bg-red-500 px-3 py-1 text-[11px] font-medium text-white transition-colors hover:bg-red-600"
+              >
+                {t.end}
+              </button>
+              <button
+                onClick={handleExpand}
+                className="rounded-md border border-zinc-700 p-1 text-zinc-400 transition-colors hover:bg-zinc-800"
+                title={t.expand}
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
         {/* Pomodoro timer row */}
         {pomEnabled && (
@@ -210,26 +229,6 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
             <span className={`text-[10px] ${pomIsBreak ? 'text-green-600' : 'text-orange-600'}`}>
               #{pomTerm}
             </span>
-          </div>
-        )}
-        {/* Buttons */}
-        {!showForm && (
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={handleStop}
-              className="rounded-md bg-red-500 px-3 py-1 text-[11px] font-medium text-white transition-colors hover:bg-red-600"
-            >
-              {t.end}
-            </button>
-            <button
-              onClick={handleExpand}
-              className="rounded-md border border-zinc-700 p-1 text-zinc-400 transition-colors hover:bg-zinc-800"
-              title={t.expand}
-            >
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
-              </svg>
-            </button>
           </div>
         )}
         {showForm && (
