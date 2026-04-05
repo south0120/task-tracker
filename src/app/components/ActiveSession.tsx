@@ -311,7 +311,8 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
               }`}
               title={t.pomodoro}
             >
-              🍅 {pomEnabled ? t.pomodoroOn : t.pomodoroOff}
+              <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="13" r="8" /><path strokeLinecap="round" d="M12 5V3m-2 2.5C8 4 9 2 12 2.5M14 5.5C16 4 15 2 12 2.5" /></svg>
+              {pomEnabled ? t.pomodoroOn : t.pomodoroOff}
             </button>
             <button
               onClick={onToggleCompact}
