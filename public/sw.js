@@ -1,4 +1,4 @@
-const CACHE_NAME = 'task-tracker-v1'
+const CACHE_NAME = 'task-tracker-v2'
 
 self.addEventListener('install', () => {
   self.skipWaiting()
