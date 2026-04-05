@@ -6,12 +6,23 @@ import TaskForm from './components/TaskForm'
 import TaskList from './components/TaskList'
 import FilterBar, { type FilterType, type SortType } from './components/FilterBar'
 import ActiveSession from './components/ActiveSession'
+import AuthGuard from './components/AuthGuard'
 import { supabase } from './lib/supabase'
+import { useAuth } from './lib/AuthContext'
 import type { Task, Priority, WorkSession } from './types/task'
 
 const priorityOrder: Record<Priority, number> = { high: 0, medium: 1, low: 2 }
 
 export default function Home() {
+  return (
+    <AuthGuard>
+      <HomeContent />
+    </AuthGuard>
+  )
+}
+
+function HomeContent() {
+  const { user } = useAuth()
   const [tasks, setTasks] = useState<Task[]>([])
   const [activeSession, setActiveSession] = useState<WorkSession | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
@@ -69,7 +80,7 @@ export default function Home() {
   const addTask = async (title: string, description: string, priority: Priority, tags: string[]) => {
     const { data } = await supabase
       .from('tasks')
-      .insert({ title, description, priority, tags })
+      .insert({ title, description, priority, tags, user_id: user!.id })
       .select()
       .single()
 
@@ -133,7 +144,7 @@ export default function Home() {
   const startWork = async (taskId: string) => {
     const { data } = await supabase
       .from('work_sessions')
-      .insert({ task_id: taskId })
+      .insert({ task_id: taskId, user_id: user!.id })
       .select()
       .single()
 

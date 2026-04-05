@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
+import AuthGuard from '../components/AuthGuard'
 
 interface SessionRow {
   id: string
@@ -53,6 +54,14 @@ function calcTotalMinutes(sessions: SessionRow[]) {
 }
 
 export default function HistoryPage() {
+  return (
+    <AuthGuard>
+      <HistoryContent />
+    </AuthGuard>
+  )
+}
+
+function HistoryContent() {
   const [sessions, setSessions] = useState<SessionRow[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
 

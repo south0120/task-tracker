@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
+import AuthGuard from '../components/AuthGuard'
 
 interface SessionRow {
   id: string
@@ -71,6 +72,14 @@ function getSessionTags(s: SessionRow): string[] {
 }
 
 export default function CalendarPage() {
+  return (
+    <AuthGuard>
+      <CalendarContent />
+    </AuthGuard>
+  )
+}
+
+function CalendarContent() {
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())

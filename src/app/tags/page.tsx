@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
+import AuthGuard from '../components/AuthGuard'
 
 interface SessionRow {
   id: string
@@ -40,6 +41,14 @@ function formatHours(ms: number) {
 }
 
 export default function TagsPage() {
+  return (
+    <AuthGuard>
+      <TagsContent />
+    </AuthGuard>
+  )
+}
+
+function TagsContent() {
   const [sessions, setSessions] = useState<SessionRow[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [period, setPeriod] = useState<Period>('month')
