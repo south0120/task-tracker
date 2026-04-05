@@ -1,11 +1,13 @@
 'use client'
 
 import { useAuth } from '../lib/AuthContext'
+import { useT } from '../lib/i18n'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
 export default function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth()
+  const t = useT()
   const router = useRouter()
 
   useEffect(() => {
@@ -15,7 +17,7 @@ export default function LoginPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-sm text-zinc-400">読み込み中...</div>
+        <div className="text-sm text-zinc-400">{t.loading}</div>
       </div>
     )
   }
@@ -24,8 +26,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Task Tracker</h1>
-          <p className="mt-2 text-sm text-zinc-500">ログインして始めましょう</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t.loginTitle}</h1>
+          <p className="mt-2 text-sm text-zinc-500">{t.loginSub}</p>
         </div>
         <button
           onClick={signInWithGoogle}
@@ -37,7 +39,7 @@ export default function LoginPage() {
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
           </svg>
-          Googleでログイン
+          {t.loginGoogle}
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import type { Task } from '../types/task'
 import TaskItem from './TaskItem'
+import { useT } from '../lib/i18n'
 
 interface TaskListProps {
   tasks: Task[]
@@ -15,10 +16,12 @@ interface TaskListProps {
 }
 
 export default function TaskList({ tasks, onToggle, onDelete, onStartWork, onUpdateTitle, onUpdateTags, allTags, activeTaskId }: TaskListProps) {
+  const t = useT()
+
   if (tasks.length === 0) {
     return (
       <div className="py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
-        タスクがありません
+        {t.noTasks}
       </div>
     )
   }

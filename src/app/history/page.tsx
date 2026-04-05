@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
 import AuthGuard from '../components/AuthGuard'
+import { useT } from '../lib/i18n'
 
 interface SessionRow {
   id: string
@@ -24,8 +25,8 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
 }
 
-function formatDuration(startedAt: string, endedAt: string | null) {
-  if (!endedAt) return '作業中...'
+function formatDuration(startedAt: string, endedAt: string | null, workingLabel = '...') {
+  if (!endedAt) return workingLabel
   const diff = new Date(endedAt).getTime() - new Date(startedAt).getTime()
   const hours = Math.floor(diff / 3600000)
   const minutes = Math.floor((diff % 3600000) / 60000)
@@ -62,6 +63,7 @@ export default function HistoryPage() {
 }
 
 function HistoryContent() {
+  const t = useT()
   const [sessions, setSessions] = useState<SessionRow[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -96,19 +98,19 @@ function HistoryContent() {
       <header className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            作業履歴
+            {t.historyTitle}
           </h1>
           <Link
             href="/"
             className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
-            ← タスク一覧
+            {t.backToTaskList}
           </Link>
         </div>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8">
         {sessions.length === 0 ? (
-          <div className="py-12 text-center text-sm text-zinc-400">作業履歴がありません</div>
+          <div className="py-12 text-center text-sm text-zinc-400">{t.noHistory}</div>
         ) : (
           <div className="flex flex-col gap-8">
             {dateKeys.map((dateKey) => {
@@ -135,7 +137,7 @@ function HistoryContent() {
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                              {s.tasks?.title ?? '削除されたタスク'}
+                              {s.tasks?.title ?? '{t.deletedTask}'}
                             </p>
                             <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
                               {formatTime(s.started_at)}

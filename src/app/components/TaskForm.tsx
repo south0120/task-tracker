@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { Priority } from '../types/task'
+import { useT } from '../lib/i18n'
 
 interface TaskFormProps {
   onAdd: (title: string, description: string, priority: Priority, tags: string[]) => void
@@ -9,6 +10,7 @@ interface TaskFormProps {
 }
 
 export default function TaskForm({ onAdd, allTags }: TaskFormProps) {
+  const t = useT()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<Priority>('medium')
@@ -48,7 +50,7 @@ export default function TaskForm({ onAdd, allTags }: TaskFormProps) {
   }
 
   const suggestedTags = allTags.filter(
-    (t) => !tags.includes(t) && t.toLowerCase().includes(tagInput.toLowerCase())
+    (tag) => !tags.includes(tag) && tag.toLowerCase().includes(tagInput.toLowerCase())
   )
 
   if (!isOpen) {
@@ -57,7 +59,7 @@ export default function TaskForm({ onAdd, allTags }: TaskFormProps) {
         onClick={() => setIsOpen(true)}
         className="w-full rounded-lg border-2 border-dashed border-zinc-300 px-4 py-3 text-sm text-zinc-500 transition-colors hover:border-zinc-400 hover:text-zinc-700 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:text-zinc-300"
       >
-        + タスクを追加
+        + {t.addTask}
       </button>
     )
   }
@@ -66,14 +68,14 @@ export default function TaskForm({ onAdd, allTags }: TaskFormProps) {
     <form onSubmit={handleSubmit} className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
       <input
         type="text"
-        placeholder="タスク名"
+        placeholder={t.title}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         autoFocus
         className="mb-2 w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-700"
       />
       <textarea
-        placeholder="説明（任意）"
+        placeholder={t.description}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows={2}
@@ -94,7 +96,7 @@ export default function TaskForm({ onAdd, allTags }: TaskFormProps) {
           ))}
           <input
             type="text"
-            placeholder="タグを入力（Enterで追加）"
+            placeholder="+ tag (Enter)"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={handleTagKeyDown}
@@ -118,15 +120,15 @@ export default function TaskForm({ onAdd, allTags }: TaskFormProps) {
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <label className="text-xs text-zinc-500 dark:text-zinc-400">優先度:</label>
+          <label className="text-xs text-zinc-500 dark:text-zinc-400">{t.priority}:</label>
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value as Priority)}
             className="rounded-md border border-zinc-300 bg-transparent px-2 py-1 text-xs outline-none dark:border-zinc-700"
           >
-            <option value="high">高</option>
-            <option value="medium">中</option>
-            <option value="low">低</option>
+            <option value="high">{t.priorityHigh}</option>
+            <option value="medium">{t.priorityMedium}</option>
+            <option value="low">{t.priorityLow}</option>
           </select>
         </div>
         <div className="flex gap-2">
@@ -135,13 +137,13 @@ export default function TaskForm({ onAdd, allTags }: TaskFormProps) {
             onClick={() => setIsOpen(false)}
             className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
-            キャンセル
+            {t.cancel}
           </button>
           <button
             type="submit"
             className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
           >
-            追加
+            {t.add}
           </button>
         </div>
       </div>

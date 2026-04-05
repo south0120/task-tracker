@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
 import AuthGuard from '../components/AuthGuard'
+import { useT } from '../lib/i18n'
 
 interface SessionRow {
   id: string
@@ -80,6 +81,7 @@ export default function CalendarPage() {
 }
 
 function CalendarContent() {
+  const t = useT()
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
@@ -221,20 +223,20 @@ function CalendarContent() {
       <header className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            カレンダー
+            {t.calendarTitle}
           </h1>
           <div className="flex gap-2">
             <Link
               href="/history"
               className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
-              履歴一覧
+              {t.historyList}
             </Link>
             <Link
               href="/"
               className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
-              ← タスク
+              {t.backToTasks}
             </Link>
           </div>
         </div>

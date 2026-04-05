@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import type { Task, WorkSession } from '../types/task'
+import { useT } from '../lib/i18n'
 
 interface ActiveSessionProps {
   session: WorkSession
@@ -23,6 +24,7 @@ const COMPACT_WIDTH = 340
 const COMPACT_HEIGHT = 110
 
 export default function ActiveSession({ session, task, onStop, compact, onToggleCompact }: ActiveSessionProps) {
+  const t = useT()
   const [elapsed, setElapsed] = useState(() => formatElapsed(session.startedAt))
   const [showForm, setShowForm] = useState(false)
   const [memo, setMemo] = useState('')
@@ -107,12 +109,12 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
                 onClick={handleStop}
                 className="rounded-md bg-red-500 px-3 py-1 text-[11px] font-medium text-white transition-colors hover:bg-red-600"
               >
-                終了
+                {t.end}
               </button>
               <button
                 onClick={handleExpand}
                 className="rounded-md border border-zinc-700 p-1 text-zinc-400 transition-colors hover:bg-zinc-800"
-                title="元のサイズに戻す"
+                title={t.expand}
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
@@ -126,7 +128,7 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
             <textarea
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
-              placeholder="やったこと"
+              placeholder={t.memoPlaceholder}
               rows={2}
               autoFocus
               className="w-full resize-none rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-100 outline-none focus:border-blue-500"
@@ -134,7 +136,7 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
             <textarea
               value={nextAction}
               onChange={(e) => setNextAction(e.target.value)}
-              placeholder="次にやること"
+              placeholder={t.nextPlaceholder}
               rows={2}
               className="w-full resize-none rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-100 outline-none focus:border-blue-500"
             />
@@ -143,13 +145,13 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
                 onClick={handleSkip}
                 className="rounded-md px-3 py-1 text-xs text-zinc-500 hover:bg-zinc-800"
               >
-                スキップ
+                {t.skip}
               </button>
               <button
                 onClick={handleStop}
                 className="rounded-md bg-red-500 px-3 py-1 text-xs font-medium text-white hover:bg-red-600"
               >
-                保存して終了
+                {t.saveEnd}
               </button>
             </div>
           </div>
@@ -167,7 +169,7 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
             <span className="relative inline-flex h-3 w-3 rounded-full bg-blue-500" />
           </span>
           <div>
-            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">作業中</p>
+            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">{t.working}</p>
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
               {task?.title ?? ''}
             </p>
@@ -182,7 +184,7 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
               <button
                 onClick={onToggleCompact}
                 className="rounded-md border border-zinc-200 p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-                title="最小表示"
+                title={t.expand}
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <rect x="2" y="2" width="20" height="20" rx="2" strokeOpacity="0.3" />
@@ -193,7 +195,7 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
                 onClick={handleStop}
                 className="rounded-md bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600"
               >
-                終了
+                {t.end}
               </button>
             </div>
           )}
@@ -203,12 +205,12 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
         <div className="mt-4 flex flex-col gap-3 border-t border-blue-200 pt-4 dark:border-blue-800">
           <div>
             <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              やったこと・進捗メモ
+              {t.memo}
             </label>
             <textarea
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
-              placeholder="今日はどこまで進めた？"
+              placeholder={t.memoPlaceholder}
               rows={2}
               autoFocus
               className="w-full resize-none rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900"
@@ -216,12 +218,12 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              次にやること
+              {t.nextAction}
             </label>
             <textarea
               value={nextAction}
               onChange={(e) => setNextAction(e.target.value)}
-              placeholder="次はどこから始める？"
+              placeholder={t.nextPlaceholder}
               rows={2}
               className="w-full resize-none rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900"
             />
@@ -231,13 +233,13 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
               onClick={handleSkip}
               className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
-              スキップ
+              {t.skip}
             </button>
             <button
               onClick={handleStop}
               className="rounded-md bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600"
             >
-              メモを保存して終了
+              {t.saveAndEnd}
             </button>
           </div>
         </div>

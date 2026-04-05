@@ -2,34 +2,36 @@
 
 import Link from 'next/link'
 import { useAuth } from '../lib/AuthContext'
+import { useT } from '../lib/i18n'
 
 export default function Header() {
   const { user, signOut } = useAuth()
+  const t = useT()
 
   return (
     <header className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="mx-auto flex max-w-3xl items-center justify-between">
         <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-          Task Tracker
+          {t.taskTracker}
         </h1>
         <div className="flex items-center gap-2">
           <Link
             href="/tags"
             className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
-            タグ集計
+            {t.tags}
           </Link>
           <Link
             href="/calendar"
             className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
-            カレンダー
+            {t.calendar}
           </Link>
           <Link
             href="/history"
             className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
-            作業履歴
+            {t.history}
           </Link>
           {user && (
             <>
@@ -46,7 +48,7 @@ export default function Header() {
                 onClick={signOut}
                 className="rounded-md border border-zinc-200 px-3 py-1.5 text-xs text-zinc-500 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
               >
-                ログアウト
+                {t.logout}
               </button>
             </>
           )}

@@ -2,17 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react'
 import type { Task } from '../types/task'
+import { useT } from '../lib/i18n'
 
 const priorityStyles = {
   high: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   medium: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   low: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-}
-
-const priorityLabels = {
-  high: '高',
-  medium: '中',
-  low: '低',
 }
 
 function formatShortDate(iso: string) {
@@ -35,6 +30,12 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ task, onToggle, onDelete, onStartWork, onUpdateTitle, onUpdateTags, allTags, isWorking, canStartWork }: TaskItemProps) {
+  const t = useT()
+  const priorityLabels = {
+    high: t.priorityHigh,
+    medium: t.priorityMedium,
+    low: t.priorityLow,
+  }
   const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(task.title)
   const [isEditingTags, setIsEditingTags] = useState(false)
@@ -95,7 +96,7 @@ export default function TaskItem({ task, onToggle, onDelete, onStartWork, onUpda
   }
 
   const suggestedTags = allTags.filter(
-    (t) => !task.tags.includes(t) && t.toLowerCase().includes(tagInput.toLowerCase())
+    (tag) => !task.tags.includes(tag) && tag.toLowerCase().includes(tagInput.toLowerCase())
   )
 
   return (
@@ -104,20 +105,26 @@ export default function TaskItem({ task, onToggle, onDelete, onStartWork, onUpda
         ? 'border-blue-300 bg-blue-50/50 dark:border-blue-700 dark:bg-blue-950/20'
         : 'border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900'
     } ${task.completed ? 'opacity-60' : ''}`}>
-      <button
-        onClick={() => onToggle(task.id)}
-        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-          task.completed
-            ? 'border-blue-500 bg-blue-500 text-white'
-            : 'border-zinc-300 hover:border-blue-400 dark:border-zinc-600'
-        }`}
-      >
-        {task.completed && (
-          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        )}
-      </button>
+      {/* Checkbox + Priority badge below it */}
+      <div className="flex shrink-0 flex-col items-center gap-1 pt-0.5">
+        <button
+          onClick={() => onToggle(task.id)}
+          className={`flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors ${
+            task.completed
+              ? 'border-blue-500 bg-blue-500 text-white'
+              : 'border-zinc-300 hover:border-blue-400 dark:border-zinc-600'
+          }`}
+        >
+          {task.completed && (
+            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </button>
+        <span className={`inline-flex rounded-full px-1.5 py-0.5 text-[9px] font-medium leading-none ${priorityStyles[task.priority]}`}>
+          {priorityLabels[task.priority]}
+        </span>
+      </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           {isEditing ? (
@@ -128,24 +135,20 @@ export default function TaskItem({ task, onToggle, onDelete, onStartWork, onUpda
               onChange={(e) => setEditTitle(e.target.value)}
               onBlur={handleSaveTitle}
               onKeyDown={handleKeyDown}
-              className="w-full rounded border border-blue-400 bg-transparent px-1 py-0.5 text-sm font-medium outline-none"
+              className="w-full rounded border border-blue-400 bg-transparent px-1 py-0.5 text-base font-bold outline-none"
             />
           ) : (
             <span
               onDoubleClick={() => setIsEditing(true)}
-              className={`cursor-text text-sm font-medium ${task.completed ? 'line-through text-zinc-400 dark:text-zinc-500' : 'text-zinc-900 dark:text-zinc-100'}`}
-              title="ダブルクリックで編集"
+              className={`cursor-text text-base font-bold ${task.completed ? 'line-through text-zinc-400 dark:text-zinc-500' : 'text-zinc-900 dark:text-zinc-100'}`}
             >
               {task.title}
             </span>
           )}
-          <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${priorityStyles[task.priority]}`}>
-            {priorityLabels[task.priority]}
-          </span>
           {isWorking && (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
               <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-              作業中
+              {t.working}
             </span>
           )}
         </div>
@@ -154,7 +157,7 @@ export default function TaskItem({ task, onToggle, onDelete, onStartWork, onUpda
         )}
         {task.lastNextAction && !task.completed && (
           <div className="mt-1.5 flex items-start gap-1.5 rounded bg-amber-50 px-2 py-1 dark:bg-amber-900/10">
-            <span className="mt-px text-[10px] font-medium text-amber-600 dark:text-amber-400">次:</span>
+            <span className="mt-px text-[10px] font-medium text-amber-600 dark:text-amber-400">&#x27A1;</span>
             <span className="text-xs text-amber-800 dark:text-amber-300">{task.lastNextAction}</span>
           </div>
         )}
@@ -184,7 +187,7 @@ export default function TaskItem({ task, onToggle, onDelete, onStartWork, onUpda
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
                 onBlur={() => { if (!tagInput) setIsEditingTags(false) }}
-                placeholder="タグを入力 Enter追加"
+                placeholder="+ tag"
                 className="min-w-[130px] rounded border border-violet-300 bg-transparent px-1.5 py-0.5 text-[11px] outline-none focus:border-violet-500"
               />
               {tagInput && suggestedTags.length > 0 && (
@@ -206,7 +209,7 @@ export default function TaskItem({ task, onToggle, onDelete, onStartWork, onUpda
               onClick={() => setIsEditingTags(true)}
               className="rounded-full border border-dashed border-zinc-300 px-1.5 py-0.5 text-[10px] text-zinc-400 transition-colors hover:border-violet-400 hover:text-violet-500 dark:border-zinc-600 dark:hover:border-violet-500"
             >
-              + タグ
+              + tag
             </button>
           )}
           <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
@@ -220,14 +223,13 @@ export default function TaskItem({ task, onToggle, onDelete, onStartWork, onUpda
             onClick={() => onStartWork(task.id)}
             className="rounded px-2 py-1 text-xs font-medium text-blue-600 opacity-0 transition-all hover:bg-blue-50 group-hover:opacity-100 dark:text-blue-400 dark:hover:bg-blue-900/20"
           >
-            開始
+            {t.start}
           </button>
         )}
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
             className="shrink-0 rounded p-1 text-zinc-400 opacity-0 transition-all hover:bg-zinc-100 hover:text-zinc-600 group-hover:opacity-100 dark:hover:bg-zinc-800"
-            title="編集"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />

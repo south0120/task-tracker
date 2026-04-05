@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
 import AuthGuard from '../components/AuthGuard'
+import { useT } from '../lib/i18n'
 
 interface SessionRow {
   id: string
@@ -49,6 +50,7 @@ export default function TagsPage() {
 }
 
 function TagsContent() {
+  const t = useT()
   const [sessions, setSessions] = useState<SessionRow[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [period, setPeriod] = useState<Period>('month')
@@ -116,20 +118,20 @@ function TagsContent() {
 
   const maxMs = tagStats.length > 0 ? tagStats[0].totalMs : 1
 
-  const periodLabels: Record<Period, string> = { week: '今週', month: '今月', all: '全期間' }
+  const periodLabels: Record<Period, string> = { week: t.thisWeek, month: t.thisMonth, all: t.allTime }
 
   return (
     <>
       <header className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            タグ別集計
+            {t.tagsTitle}
           </h1>
           <Link
             href="/"
             className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
-            ← タスク
+            {t.backToTasks}
           </Link>
         </div>
       </header>
@@ -162,7 +164,7 @@ function TagsContent() {
         {!isLoaded ? (
           <div className="py-12 text-center text-sm text-zinc-400">読み込み中...</div>
         ) : tagStats.length === 0 ? (
-          <div className="py-12 text-center text-sm text-zinc-400">作業記録がありません</div>
+          <div className="py-12 text-center text-sm text-zinc-400">{t.noRecords}</div>
         ) : (
           <div className="flex flex-col gap-3">
             {tagStats.map(({ tag, totalMs, count, taskList }) => {
