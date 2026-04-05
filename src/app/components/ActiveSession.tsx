@@ -19,8 +19,8 @@ function formatElapsed(startedAt: string) {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
-const COMPACT_WIDTH = 320
-const COMPACT_HEIGHT = 160
+const COMPACT_WIDTH = 340
+const COMPACT_HEIGHT = 100
 
 export default function ActiveSession({ session, task, onStop, compact, onToggleCompact }: ActiveSessionProps) {
   const [elapsed, setElapsed] = useState(() => formatElapsed(session.startedAt))
@@ -93,33 +93,35 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
 
   if (compact) {
     return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center gap-3 bg-zinc-950 px-4 py-4 select-none">
-        <p className="max-w-full truncate text-xs font-medium text-zinc-400">
+      <div className="flex min-h-screen w-full flex-col items-center justify-center gap-1.5 bg-zinc-950 px-4 py-3 select-none">
+        <p className="max-w-full truncate text-[11px] font-medium text-zinc-400">
           {task?.title ?? '不明なタスク'}
         </p>
-        <p className="font-mono text-3xl font-bold tabular-nums text-blue-400">
-          {elapsed}
-        </p>
-        {!showForm ? (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleStop}
-              className="rounded-md bg-red-500 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-600"
-            >
-              終了
-            </button>
-            <button
-              onClick={handleExpand}
-              className="rounded-md border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:bg-zinc-800"
-              title="元のサイズに戻す"
-            >
-              {/* 展開アイコン */}
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
-              </svg>
-            </button>
-          </div>
-        ) : (
+        <div className="flex items-center gap-3">
+          <p className="font-mono text-2xl font-bold tabular-nums text-blue-400">
+            {elapsed}
+          </p>
+          {!showForm && (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={handleStop}
+                className="rounded-md bg-red-500 px-3 py-1 text-[11px] font-medium text-white transition-colors hover:bg-red-600"
+              >
+                終了
+              </button>
+              <button
+                onClick={handleExpand}
+                className="rounded-md border border-zinc-700 p-1 text-zinc-400 transition-colors hover:bg-zinc-800"
+                title="元のサイズに戻す"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+        {showForm && (
           <div className="flex w-full flex-col gap-2">
             <textarea
               value={memo}
