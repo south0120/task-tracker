@@ -161,48 +161,46 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
   }
 
   return (
-    <div className="rounded-lg border-2 border-blue-500 bg-blue-50 px-5 py-4 dark:border-blue-400 dark:bg-blue-950/30">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="relative flex h-3 w-3">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-blue-500" />
-          </span>
-          <div>
-            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">{t.working}</p>
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-              {task?.title ?? ''}
-            </p>
+    <div className="rounded-lg border-2 border-blue-500 bg-blue-50 px-4 py-3 sm:px-5 sm:py-4 dark:border-blue-400 dark:bg-blue-950/30">
+      {/* Row 1: working label + task name */}
+      <div className="flex items-center gap-2">
+        <span className="relative flex h-3 w-3 shrink-0">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
+          <span className="relative inline-flex h-3 w-3 rounded-full bg-blue-500" />
+        </span>
+        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{t.working}</span>
+        <span className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+          {task?.title ?? ''}
+        </span>
+      </div>
+      {/* Row 2: elapsed time + buttons */}
+      <div className="mt-2 flex items-center gap-2">
+        <span className="font-mono text-lg font-bold tabular-nums text-blue-700 sm:text-xl dark:text-blue-300">
+          {elapsed}
+        </span>
+        {!showForm && (
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={onToggleCompact}
+              className="hidden rounded-md border border-zinc-200 p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 sm:block dark:border-zinc-700 dark:hover:bg-zinc-800"
+              title={t.expand}
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <rect x="2" y="2" width="20" height="20" rx="2" strokeOpacity="0.3" />
+                <rect x="11" y="11" width="11" height="11" rx="1.5" fill="currentColor" opacity="0.6" stroke="currentColor" />
+              </svg>
+            </button>
+            <button
+              onClick={handleStop}
+              className="whitespace-nowrap rounded-md bg-red-500 px-5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600"
+            >
+              {t.end}
+            </button>
           </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="font-mono text-lg font-bold tabular-nums text-blue-700 dark:text-blue-300">
-            {elapsed}
-          </span>
-          {!showForm && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={onToggleCompact}
-                className="rounded-md border border-zinc-200 p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-                title={t.expand}
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <rect x="2" y="2" width="20" height="20" rx="2" strokeOpacity="0.3" />
-                  <rect x="11" y="11" width="11" height="11" rx="1.5" fill="currentColor" opacity="0.6" stroke="currentColor" />
-                </svg>
-              </button>
-              <button
-                onClick={handleStop}
-                className="rounded-md bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600"
-              >
-                {t.end}
-              </button>
-            </div>
-          )}
-        </div>
+        )}
       </div>
       {showForm && (
-        <div className="mt-4 flex flex-col gap-3 border-t border-blue-200 pt-4 dark:border-blue-800">
+        <div className="mt-3 flex flex-col gap-3 border-t border-blue-200 pt-3 dark:border-blue-800">
           <div>
             <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
               {t.memo}
@@ -237,7 +235,7 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
             </button>
             <button
               onClick={handleStop}
-              className="rounded-md bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600"
+              className="whitespace-nowrap rounded-md bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600"
             >
               {t.saveAndEnd}
             </button>

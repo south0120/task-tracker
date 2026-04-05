@@ -26,7 +26,7 @@ function HomeContent() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [activeSession, setActiveSession] = useState<WorkSession | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
-  const [filter, setFilter] = useState<FilterType>('all')
+  const [filter, setFilter] = useState<FilterType>('active')
   const [sort, setSort] = useState<SortType>('created')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [compactMode, setCompactMode] = useState(false)
