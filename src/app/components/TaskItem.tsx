@@ -221,7 +221,7 @@ export default function TaskItem({ task, onToggle, onDelete, onStartWork, onUpda
         {!task.completed && !isWorking && canStartWork && (
           <button
             onClick={() => onStartWork(task.id)}
-            className="rounded px-2 py-1 text-xs font-medium text-blue-600 opacity-0 transition-all hover:bg-blue-50 group-hover:opacity-100 dark:text-blue-400 dark:hover:bg-blue-900/20"
+            className="rounded px-2 py-1 text-xs font-medium text-blue-600 transition-all hover:bg-blue-50 sm:opacity-0 sm:group-hover:opacity-100 dark:text-blue-400 dark:hover:bg-blue-900/20"
           >
             {t.start}
           </button>

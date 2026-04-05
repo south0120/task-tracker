@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '../lib/AuthContext'
 import { useT } from '../lib/i18n'
@@ -7,6 +8,7 @@ import { useT } from '../lib/i18n'
 export default function Header() {
   const { user, signOut } = useAuth()
   const t = useT()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <header className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950">
@@ -14,31 +16,21 @@ export default function Header() {
         <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
           {t.taskTracker}
         </h1>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/tags"
-            className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          >
+
+        {/* Desktop nav */}
+        <div className="hidden items-center gap-2 sm:flex">
+          <Link href="/tags" className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
             {t.tags}
           </Link>
-          <Link
-            href="/calendar"
-            className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          >
+          <Link href="/calendar" className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
             {t.calendar}
           </Link>
-          <Link
-            href="/history"
-            className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          >
+          <Link href="/history" className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
             {t.history}
           </Link>
           {user && (
             <>
-              <Link
-                href="/settings"
-                className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              >
+              <Link href="/settings" className="rounded-md px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -53,7 +45,49 @@ export default function Header() {
             </>
           )}
         </div>
+
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="rounded-md p-2 text-zinc-500 transition-colors hover:bg-zinc-100 sm:hidden dark:hover:bg-zinc-800"
+        >
+          {menuOpen ? (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </button>
       </div>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="mx-auto mt-3 flex max-w-3xl flex-col gap-1 border-t border-zinc-100 pt-3 sm:hidden dark:border-zinc-800">
+          <Link href="/tags" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+            {t.tags}
+          </Link>
+          <Link href="/calendar" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+            {t.calendar}
+          </Link>
+          <Link href="/history" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+            {t.history}
+          </Link>
+          <Link href="/settings" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+            {t.settings}
+          </Link>
+          {user && (
+            <button
+              onClick={() => { signOut(); setMenuOpen(false) }}
+              className="rounded-md px-3 py-2 text-left text-sm text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
+            >
+              {t.logout}
+            </button>
+          )}
+        </div>
+      )}
     </header>
   )
 }
