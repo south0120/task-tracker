@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import type { Task, WorkSession } from '../types/task'
 import { useT } from '../lib/i18n'
 
@@ -20,8 +20,17 @@ function formatElapsed(startedAt: string) {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
+function formatMmSs(totalSeconds: number) {
+  const m = Math.floor(totalSeconds / 60)
+  const s = totalSeconds % 60
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
 const COMPACT_WIDTH = 340
 const COMPACT_HEIGHT = 110
+
+const WORK_DURATION = 25 * 60
+const BREAK_DURATION = 5 * 60
 
 export default function ActiveSession({ session, task, onStop, compact, onToggleCompact }: ActiveSessionProps) {
   const t = useT()
@@ -31,12 +40,74 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
   const [nextAction, setNextAction] = useState('')
   const prevSize = useRef<{ w: number; h: number; x: number; y: number } | null>(null)
 
+  // Pomodoro state
+  const [pomEnabled, setPomEnabled] = useState(false)
+  const [pomSecondsLeft, setPomSecondsLeft] = useState(WORK_DURATION)
+  const [pomIsBreak, setPomIsBreak] = useState(false)
+  const [pomTerm, setPomTerm] = useState(1)
+  const [pomMessage, setPomMessage] = useState('')
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const playAlarm = useCallback(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/alarm.wav')
+    }
+    audioRef.current.currentTime = 0
+    audioRef.current.play().catch(() => {})
+  }, [])
+
   useEffect(() => {
     const interval = setInterval(() => {
       setElapsed(formatElapsed(session.startedAt))
     }, 1000)
     return () => clearInterval(interval)
   }, [session.startedAt])
+
+  // Pomodoro timer
+  useEffect(() => {
+    if (!pomEnabled) return
+    const interval = setInterval(() => {
+      setPomSecondsLeft((prev) => {
+        if (prev <= 1) {
+          // Transition
+          if (pomIsBreak) {
+            setPomIsBreak(false)
+            setPomTerm((t) => t + 1)
+            setPomMessage('')
+            playAlarm()
+            return WORK_DURATION
+          } else {
+            setPomIsBreak(true)
+            setPomMessage(t.pomBreakTime)
+            playAlarm()
+            return BREAK_DURATION
+          }
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [pomEnabled, pomIsBreak, playAlarm, t.pomBreakTime])
+
+  // Clear message after 5 seconds
+  useEffect(() => {
+    if (!pomMessage) return
+    const timer = setTimeout(() => setPomMessage(''), 5000)
+    return () => clearTimeout(timer)
+  }, [pomMessage])
+
+  const togglePomodoro = () => {
+    if (!pomEnabled) {
+      setPomEnabled(true)
+      setPomSecondsLeft(WORK_DURATION)
+      setPomIsBreak(false)
+      setPomTerm(1)
+      setPomMessage('')
+    } else {
+      setPomEnabled(false)
+      setPomMessage('')
+    }
+  }
 
   useEffect(() => {
     if (compact) {
@@ -47,7 +118,8 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
         y: window.screenY,
       }
       const formHeight = showForm ? 280 : 0
-      const targetH = COMPACT_HEIGHT + formHeight
+      const pomHeight = pomEnabled ? 30 : 0
+      const targetH = COMPACT_HEIGHT + formHeight + pomHeight
       const screenW = window.screen.availWidth
       window.resizeTo(COMPACT_WIDTH, targetH)
       window.moveTo(screenW - COMPACT_WIDTH - 16, 16)
@@ -56,10 +128,11 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
 
   useEffect(() => {
     if (compact) {
-      const targetH = showForm ? COMPACT_HEIGHT + 280 : COMPACT_HEIGHT
+      const pomHeight = pomEnabled ? 30 : 0
+      const targetH = showForm ? COMPACT_HEIGHT + 280 + pomHeight : COMPACT_HEIGHT + pomHeight
       window.resizeTo(COMPACT_WIDTH, targetH)
     }
-  }, [showForm, compact])
+  }, [showForm, compact, pomEnabled])
 
   const handleExpand = () => {
     if (prevSize.current) {
@@ -93,12 +166,30 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
     setShowForm(false)
   }
 
+  // Pomodoro status bar (shared between compact and normal)
+  const pomBar = pomEnabled ? (
+    <div className={`flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-medium ${
+      pomIsBreak
+        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+        : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+    }`}>
+      <span>{pomIsBreak ? t.pomBreak : t.pomWork}</span>
+      <span className="font-mono tabular-nums">{formatMmSs(pomSecondsLeft)}</span>
+      <span className="text-[10px] opacity-70">{t.pomTerm} {pomTerm}</span>
+    </div>
+  ) : null
+
   if (compact) {
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center gap-1.5 bg-zinc-950 px-4 pb-5 pt-3 select-none">
         <p className="max-w-full truncate text-[11px] font-medium text-zinc-400">
           {task?.title ?? ''}
         </p>
+        {pomMessage && (
+          <p className={`text-xs font-bold ${pomIsBreak ? 'text-orange-400' : 'text-green-400'}`}>
+            {pomMessage}
+          </p>
+        )}
         <div className="flex items-center gap-3">
           <p className="font-mono text-2xl font-bold tabular-nums text-blue-400">
             {elapsed}
@@ -123,6 +214,15 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
             </div>
           )}
         </div>
+        {pomEnabled && (
+          <div className={`flex items-center gap-1.5 text-[10px] font-medium ${
+            pomIsBreak ? 'text-green-400' : 'text-orange-400'
+          }`}>
+            <span>{pomIsBreak ? t.pomBreak : t.pomWork}</span>
+            <span className="font-mono tabular-nums">{formatMmSs(pomSecondsLeft)}</span>
+            <span className="opacity-60">#{pomTerm}</span>
+          </div>
+        )}
         {showForm && (
           <div className="flex w-full flex-col gap-2">
             <textarea
@@ -161,29 +261,61 @@ export default function ActiveSession({ session, task, onStop, compact, onToggle
   }
 
   return (
-    <div className="rounded-lg border-2 border-blue-500 bg-blue-50 px-4 py-3 sm:px-5 sm:py-4 dark:border-blue-400 dark:bg-blue-950/30">
+    <div className={`rounded-lg border-2 px-4 py-3 sm:px-5 sm:py-4 ${
+      pomIsBreak && pomEnabled
+        ? 'border-green-500 bg-green-50 dark:border-green-400 dark:bg-green-950/30'
+        : 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-950/30'
+    }`}>
+      {/* Pomodoro message banner */}
+      {pomMessage && (
+        <div className={`mb-2 rounded-md px-3 py-2 text-center text-sm font-bold ${
+          pomIsBreak
+            ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+            : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+        }`}>
+          {pomMessage}
+        </div>
+      )}
       {/* Row 1: working label + task name */}
       <div className="flex items-center gap-2">
         <span className="relative flex h-3 w-3 shrink-0">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
-          <span className="relative inline-flex h-3 w-3 rounded-full bg-blue-500" />
+          <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${
+            pomIsBreak && pomEnabled ? 'bg-green-400' : 'bg-blue-400'
+          }`} />
+          <span className={`relative inline-flex h-3 w-3 rounded-full ${
+            pomIsBreak && pomEnabled ? 'bg-green-500' : 'bg-blue-500'
+          }`} />
         </span>
-        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{t.working}</span>
+        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+          {pomEnabled && pomIsBreak ? t.pomBreak : t.working}
+        </span>
         <span className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
           {task?.title ?? ''}
         </span>
       </div>
-      {/* Row 2: elapsed time + buttons */}
-      <div className="mt-2 flex items-center gap-2">
+      {/* Row 2: elapsed time + pomodoro + buttons */}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
         <span className="font-mono text-lg font-bold tabular-nums text-blue-700 sm:text-xl dark:text-blue-300">
           {elapsed}
         </span>
+        {pomBar}
         {!showForm && (
           <div className="ml-auto flex items-center gap-2">
+            {/* Pomodoro toggle */}
+            <button
+              onClick={togglePomodoro}
+              className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                pomEnabled
+                  ? 'border-orange-300 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:border-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                  : 'border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800'
+              }`}
+              title={t.pomodoro}
+            >
+              🍅 {pomEnabled ? t.pomodoroOn : t.pomodoroOff}
+            </button>
             <button
               onClick={onToggleCompact}
               className="rounded-md border border-zinc-200 p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-              title={t.expand}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <rect x="2" y="2" width="20" height="20" rx="2" strokeOpacity="0.3" />
